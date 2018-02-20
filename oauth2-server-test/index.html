@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.36.1" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Oauth2 Server Test &middot; My New Hugo Site</title>
+
+  
+  <link rel="stylesheet" href="https://geemo.github.io/css/print.css" media="print">
+  <link rel="stylesheet" href="https://geemo.github.io/css/poole.css">
+  <link rel="stylesheet" href="https://geemo.github.io/css/syntax.css">
+  <link rel="stylesheet" href="https://geemo.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
+</head>
+
+  <body class=" ">
+  <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://geemo.github.io/"><h1>My New Hugo Site</h1></a>
+      <p class="lead">
+      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
+      </p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li><a href="https://geemo.github.io/">Home</a> </li>
+      
+    </ul>
+
+    <p>&copy; 2018. All rights reserved. </p>
+  </div>
+</div>
+
+    <div class="content container">
+    <div class="post">
+  <h1>Oauth2 Server Test</h1>
+  <span class="post-date">Tue, Feb 20, 2018</span>
+  
+
+<p>OAuth认证流程有什么用，想必使用过第三方账号登录的大家也都有所了解过。某些第三方应用在用户使用合作账号登录时会获取资料。比如多说评论框，在使用qq账号登录时，获取了用户的qq头像以及昵称等信息。传统的做法要使多说评论框获取这些信息，需要将用户的qq账号和密码告诉多说，这样做有几个严重的缺点。</p>
+
+<ul>
+<li>多说会保存用户的账号密码，为了给用户提供后续服务，那么当多说被破解时，将导致用户的账号信息泄露</li>
+<li>多说将拥有用户账号所有者的权限，可以任意获取以及修改用户信息</li>
+<li>用户收回权限，必须改密，改密后多说将失去用户资源的所有访问及修改权限</li>
+</ul>
+
+<p>而OAuth认证就是为了解决上述问题而诞生的。</p>
+
+<!-- more -->
+
+<p>先来一张流程图吧:
+<pre>
+     +&mdash;&mdash;&mdash;-+
+     | Resource |
+     |   Owner  |
+     |  用  户  |
+     +&mdash;&mdash;&mdash;-+
+          ^
+          |<br />
+         (B)               跳转到认证服务器的授权页
+     +&mdash;-|&mdash;&ndash;+          Client Identifier      +&mdash;&mdash;&mdash;&mdash;&mdash;+
+     |         -+&mdash;-(A)&ndash; &amp; Redirection URI &mdash;-&gt;|               |
+     |          |                                 |               |
+     |  User-   |          用户同意授权            | Authorization |
+     |  Agent  -+&mdash;-(B)&ndash; User authenticates &mdash;&gt;|     Server    |
+     |          |                                 |               |
+     |  浏览器   |          返回授权码              |  认证服务器    |
+     |         -+&mdash;-&copy;&ndash; Authorization Code &mdash;&lt;|               |
+     +-|&mdash;-|&mdash;+                                 +&mdash;&mdash;&mdash;&mdash;&mdash;+
+       |    |                                         ^      v
+      (A)  &copy;                                        |      |
+       |    |                                         |      |
+       ^    v                                         |      |
+     +&mdash;&mdash;&mdash;+                申请令牌               |      |
+     |         |&gt;&mdash;(D)&ndash; Authorization Code &mdash;&mdash;&mdash;&rsquo;      |
+     |  Client |          &amp; Client Identifier                |
+     |         |          &amp; Client Secret                    |
+     |  第三方 |           &amp; Redirection URI                  |
+     |  应用   |                返回令牌                       |
+     |         |&lt;&mdash;(E)&mdash;&ndash; Access Token &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-&rsquo;
+     +-|&mdash;-|&ndash;+       (w/ Optional Refresh Token)
+       |    |                    请求资源             +&mdash;&mdash;&mdash;&ndash;+
+       |    |&mdash;&mdash;&mdash;-(F)&mdash;&ndash; Access Token &mdash;&mdash;&ndash;&gt;|           |
+       |                        &amp; Client Identifier   | Resource  |
+       |                         返回资源              | Server    |
+       |&mdash;&mdash;&mdash;&mdash;&mdash;(G)&mdash;&ndash; Protected Resource&mdash;&lt;|   资源    |
+                                                      |  服务器   |
+                                                      +&mdash;&mdash;&mdash;&ndash;+
+</pre></p>
+
+<p>流程解释:</p>
+
+<ul>
+<li>(A) 用户通过浏览器访问第三方应用，第三方应用将浏览器页面重定向到认证服务器的授权页面，并附上第三方应用id和约定好的重定向uri参数</li>
+<li>(B) 用户选择是否同意授权</li>
+<li>&copy; 如果用户同意授权，认证服务器将浏览器导向之前约定好的重定向uri(返回第三方应用)，并附上用来获取令牌的授权码</li>
+<li>(D) 第三方应用收到授权码后，将授权码，第三方应用的认证id，第三方应用认证密码以及约定好的重定向uri作为参数，继续向认证服务器请求获取令牌</li>
+<li>(E) 认认证服务器核对各个参数无误后，同意向第三方应用发放令牌以及可选的更新令牌</li>
+<li>(F) 在成功获取到令牌后，调用Api时通过附加令牌和第三方应用id来请求资源</li>
+<li>(G) 资源服务器核对各个参数无误后，向第三方应用返回资源结果</li>
+</ul>
+
+<p>注: 上述所有的授权码以及令牌都是具有时效性的，超时后需重新申请！
+    认证服务器和资源服务器可以是同一台服务器。</p>
+
+<p>未完待续&hellip;</p>
+
+<h3 id="参考文献">参考文献</h3>
+
+<p><a href="https://tools.ietf.org/html/rfc6749">rfc6749</a><br>
+<a href="http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html">理解OAuth 2.0</a><br>
+<a href="https://book.douban.com/subject/26642320/">Node.js实战第二季</a></p>
+
+</div>
+
+
+    </div>
+
+    
+  </body>
+</html>

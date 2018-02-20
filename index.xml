@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>My New Hugo Site</title>
+    <link>https://geemo.github.io/</link>
+    <description>Recent content on My New Hugo Site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Feb 2018 20:15:07 +0800</lastBuildDate>
+    
+	<atom:link href="https://geemo.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Simple Ws Server</title>
+      <link>https://geemo.github.io/simple-ws-server/</link>
+      <pubDate>Tue, 20 Feb 2018 20:15:07 +0800</pubDate>
+      
+      <guid>https://geemo.github.io/simple-ws-server/</guid>
+      <description>&lt;p&gt;众所周知，在http2之前，受制于协议本身的原因，http并不支持服务端主动推送。客户端需要采用轮询等方式与服务端进行实时通信，但产生的开销比较大。而html5中提出了一套websocket协议规范，使得客户端浏览器与服务端进行双向实时通信成为可能(具体参见&lt;a href=&#34;https://datatracker.ietf.org/doc/rfc6455/?include_text=1&#34;&gt;rfc6455&lt;/a&gt;)，本文将介绍用node.js原生模块打造一个简单的ws服务器，&lt;a href=&#34;https://github.com/geemo/test/tree/master/node/ws&#34;&gt;点击这里&lt;/a&gt;获取完整代码。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
