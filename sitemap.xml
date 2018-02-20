@@ -1,25 +1,59 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<?xml-stylesheet type="text/xsl" href="https://geemo.github.io/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://geemo.github.io/simple-ws-server/</loc>
+    <loc>https://geemo.github.io/post/simple-ws-server/</loc>
     <lastmod>2018-02-20T20:15:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://geemo.github.io/categories/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://geemo.github.io/categories/code/</loc>
+    <lastmod>2018-02-20T20:15:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://geemo.github.io/</loc>
     <lastmod>2018-02-20T20:15:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://geemo.github.io/tags/javascript/</loc>
+    <lastmod>2018-02-20T20:15:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://geemo.github.io/post/</loc>
+    <lastmod>2018-02-20T20:15:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://geemo.github.io/tags/</loc>
+    <lastmod>2018-02-20T20:15:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://geemo.github.io/tags/websocket/</loc>
+    <lastmod>2018-02-20T20:15:07+08:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0</priority>
   </url>
   

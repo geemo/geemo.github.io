@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Simple Ws Server - Even - A super concise theme for Hugo</title>
+  <title>简单的 websocket 服务器实现（协议实现） - Even - A super concise theme for Hugo</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -30,7 +30,7 @@
 <meta name="generator" content="Hugo 0.36.1" />
 
 
-<link rel="canonical" href="https://geemo.github.io/simple-ws-server/" />
+<link rel="canonical" href="https://geemo.github.io/post/simple-ws-server/" />
 
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -50,10 +50,10 @@
 
 
 
-<meta property="og:title" content="Simple Ws Server" />
+<meta property="og:title" content="简单的 websocket 服务器实现（协议实现）" />
 <meta property="og:description" content="众所周知，在http2之前，受制于协议本身的原因，http并不支持服务端主动推送。客户端需要采用轮询等方式与服务端进行实时通信，但产生的开销比较大。而html5中提出了一套websocket协议规范，使得客户端浏览器与服务端进行双向实时通信成为可能(具体参见rfc6455)，本文将介绍用node.js原生模块打造一个简单的ws服务器，点击这里获取完整代码。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://geemo.github.io/simple-ws-server/" />
+<meta property="og:url" content="https://geemo.github.io/post/simple-ws-server/" />
 
 
 
@@ -71,19 +71,19 @@
 
 
 
-<meta itemprop="name" content="Simple Ws Server">
+<meta itemprop="name" content="简单的 websocket 服务器实现（协议实现）">
 <meta itemprop="description" content="众所周知，在http2之前，受制于协议本身的原因，http并不支持服务端主动推送。客户端需要采用轮询等方式与服务端进行实时通信，但产生的开销比较大。而html5中提出了一套websocket协议规范，使得客户端浏览器与服务端进行双向实时通信成为可能(具体参见rfc6455)，本文将介绍用node.js原生模块打造一个简单的ws服务器，点击这里获取完整代码。">
 
 
 <meta itemprop="datePublished" content="2018-02-20T20:15:07&#43;08:00" />
 <meta itemprop="dateModified" content="2018-02-20T20:15:07&#43;08:00" />
-<meta itemprop="wordCount" content="2153">
+<meta itemprop="wordCount" content="2151">
 
 
 
-<meta itemprop="keywords" content="" />
+<meta itemprop="keywords" content="websocket,javascript," />
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Simple Ws Server"/>
+<meta name="twitter:title" content="简单的 websocket 服务器实现（协议实现）"/>
 <meta name="twitter:description" content="众所周知，在http2之前，受制于协议本身的原因，http并不支持服务端主动推送。客户端需要采用轮询等方式与服务端进行实时通信，但产生的开销比较大。而html5中提出了一套websocket协议规范，使得客户端浏览器与服务端进行双向实时通信成为可能(具体参见rfc6455)，本文将介绍用node.js原生模块打造一个简单的ws服务器，点击这里获取完整代码。"/>
 
 <!--[if lte IE 9]>
@@ -145,31 +145,72 @@
       <div class="content-wrapper">
         <div id="content" class="content">
           <article class="post">
-  <div class="post-content">
+    
+    <header class="post-header">
+      <h1 class="post-title">简单的 websocket 服务器实现（协议实现）</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2018-02-20 </span>
+        <div class="post-category">
+            
+              <a href="/categories/code/"> code </a>
+            
+          </div>
+        <span class="more-meta"> 约 2151 字 </span>
+        <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    
+    
+<div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#握手阶段">握手阶段</a></li>
+<li><a href="#ws帧解码与编码">ws帧解码与编码</a></li>
+<li><a href="#结尾">结尾</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+
+    
+    <div class="post-content">
       <p>众所周知，在http2之前，受制于协议本身的原因，http并不支持服务端主动推送。客户端需要采用轮询等方式与服务端进行实时通信，但产生的开销比较大。而html5中提出了一套websocket协议规范，使得客户端浏览器与服务端进行双向实时通信成为可能(具体参见<a href="https://datatracker.ietf.org/doc/rfc6455/?include_text=1">rfc6455</a>)，本文将介绍用node.js原生模块打造一个简单的ws服务器，<a href="https://github.com/geemo/test/tree/master/node/ws">点击这里</a>获取完整代码。</p>
 
 <p>
 websocket protocol分为两部分：握手和数据传输</p>
 
-<p><strong>1. 握手阶段</strong></p>
+<h2 id="握手阶段">握手阶段</h2>
 
 <ul>
-<li><p>客户端握手请求报文：
-    GET /chat HTTP/1.1  //请求行
+<li><p>客户端握手请求报文：</p>
+
+<pre><code>    GET /chat HTTP/1.1  //请求行
     Host: server.example.com
     Upgrade: websocket  //required
     Connection: Upgrade //required
     Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ== //required
-    Origin: <a href="http://example.com">http://example.com</a>  // 用于防止未认证的跨域脚本使用浏览器websocket api与服务端进行通信
+    Origin: http://example.com  // 用于防止未认证的跨域脚本使用浏览器websocket api与服务端进行通信
     Sec-WebSocket-Protocol: chat, superchat  //optional, 子协议协商字段
-    Sec-WebSocket-Version: 13</p></li>
+    Sec-WebSocket-Version: 13
+</code></pre></li>
 
-<li><p>服务端响应报文:
-    HTTP/1.1 101 Switching Protocols  //状态行
+<li><p>服务端响应报文:</p>
+
+<pre><code>    HTTP/1.1 101 Switching Protocols  //状态行
     Upgrade: websocket   //required
     Connection: Upgrade  //required
     Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo= //required
-    Sec-WebSocket-Protocol: chat //表明选择的子协议</p></li>
+    Sec-WebSocket-Protocol: chat //表明选择的子协议
+</code></pre></li>
 </ul>
 
 <p>握手阶段，具体来讲，就是当浏览器脚本new WebSocket(url)后，浏览器对服务器发送一个协议升级的请求，请求中带有Sec-WebSocket-Key字段。服务端接收到协议提升请求后对这个字段加上一个特定的GUID后做一次sha1运算，然后再获取结果的base64格式摘要，作为Sec-WebSocket-Accept响应头的值响应回客户端浏览器，就完成了握手。具体代码如下：</p>
@@ -194,7 +235,7 @@ websocket protocol分为两部分：握手和数据传输</p>
 });
 </code></pre>
 
-<p><strong>2. ws帧解码与编码</strong></p>
+<h2 id="ws帧解码与编码">ws帧解码与编码</h2>
 
 <p>握手成功后，就可以进行数据传输了，然而不进行解码操作是得不到正确的结果的。</p>
 
@@ -400,10 +441,57 @@ socket.write(encodeWsFrame({isFinal: true, opcode: 0, payloadData: 'ddd'}));
 // 客户端将三个帧进行拼接为'bbbcccddd'
 </code></pre>
 
-<p><strong>结尾</strong>
-好啦，大致实现基本完成，当然还有各种子协议，响应状态码等还没有研究，毕竟只是实现一个玩具嘛。</p>
+<h2 id="结尾">结尾</h2>
+
+<p>好啦，大致实现基本完成，当然还有各种子协议，响应状态码等还没有研究，毕竟只是实现一个玩具嘛。</p>
+    </div>
+
+    
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">geemo</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">2018-02-20</span>
+  </p>
+  
+  
+</div>
+
+    
+    
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    
+      <label class="qr-code-image" for="reward">
+        <img class="image" src="/wechat.jpeg">
+        <span>微信打赏</span>
+      </label>
+    
   </div>
-</article>
+</div>
+
+    <footer class="post-footer">
+      <div class="post-tags">
+          
+          <a href="/tags/websocket/">websocket</a>
+          
+          <a href="/tags/javascript/">javascript</a>
+          
+        </div>
+
+      
+      <nav class="post-nav">
+        
+        
+      </nav>
+    </footer>
+  </article>
         </div>
         
   
@@ -417,18 +505,8 @@ socket.write(encodeWsFrame({isFinal: true, opcode: 0, payloadData: 'ddd'}));
     <footer id="footer" class="footer">
       <div class="social-links">
       <a href="153330685@qq.com" class="iconfont icon-email" title="email"></a>
-      <a href="http://localhost:1313" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
-      <a href="http://localhost:1313" class="iconfont icon-twitter" title="twitter"></a>
-      <a href="http://localhost:1313" class="iconfont icon-facebook" title="facebook"></a>
-      <a href="http://localhost:1313" class="iconfont icon-linkedin" title="linkedin"></a>
-      <a href="http://localhost:1313" class="iconfont icon-google" title="google"></a>
       <a href="https://github.com/geemo" class="iconfont icon-github" title="github"></a>
-      <a href="http://localhost:1313" class="iconfont icon-weibo" title="weibo"></a>
       <a href="https://www.zhihu.com/people/geemo-66" class="iconfont icon-zhihu" title="zhihu"></a>
-      <a href="http://localhost:1313" class="iconfont icon-douban" title="douban"></a>
-      <a href="http://localhost:1313" class="iconfont icon-pocket" title="pocket"></a>
-      <a href="http://localhost:1313" class="iconfont icon-tumblr" title="tumblr"></a>
-      <a href="http://localhost:1313" class="iconfont icon-instagram" title="instagram"></a>
   <a href="https://geemo.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
 </div>
 

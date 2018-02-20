@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://geemo.github.io/sitemap.xml
